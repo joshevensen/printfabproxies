@@ -13,30 +13,11 @@ export interface PrintCard {
   breakBefore: "auto" | "page";
 }
 
-const DEFAULT_DECKLIST = `1 Achilles Accelerator
-1 Galvanic Bender
-1 mBrio Base Vizier
-1 Rust Belt
-1 Spitfire
-2 Adrenaline Rush (red)
-2 Arcane Polarity (red)
-2 Captain's Call (yellow)
-2 Captain's Call (red)
-2 Talisman of Dousing (yellow)
-2 Blade Flash (blue)
-2 Dodge (blue)
-2 Sigil of Cycles (blue)
-1 Vigor
-1 Marked
-1 Dash
-2 Mounting Anger (yellow)
-2 Chivalry (blue)`;
-
 const state = reactive({
   step: "deck" as Step,
   dbCards: null as Card[] | null,
   dbIndex: null as Map<string, Card[]> | null,
-  decklistText: DEFAULT_DECKLIST,
+  decklistText: "",
   parsedRows: [] as ParsedRow[],
   hasChecked: false,
   resolvedCards: [] as ResolvedCard[],

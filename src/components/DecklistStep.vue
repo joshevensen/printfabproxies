@@ -46,6 +46,7 @@ onMounted(() => {
     <textarea
       ref="textareaRef"
       :value="state.decklistText"
+      placeholder="1 Fyendal's Spring Tunic..."
       spellcheck="false"
       class="deck-step__textarea"
       @input="handleDecklistChange"

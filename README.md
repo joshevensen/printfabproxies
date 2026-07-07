@@ -27,6 +27,12 @@ node scripts/build-cards.mjs
 A scheduled GitHub Action (`.github/workflows/update-cards.yml`) re-runs this
 weekly and commits the result if the upstream database changed.
 
+## Contributing
+
+This is a small side project maintained on a best-effort basis — don't expect
+fast turnaround. PRs are welcome for bug fixes and small improvements; open an
+issue first for anything larger so we're aligned before you put in the work.
+
 ## Icon attribution
 
 The card-type watermark icons in `public/icons/` are from
@@ -41,3 +47,7 @@ The card-type watermark icons in `public/icons/` are from
 | `attack-reaction.svg` | Andymeneely |
 | `defense-reaction.svg` | Felbrigg |
 | `block.svg` | sbed |
+
+## License
+
+MIT — see [LICENSE](LICENSE).

@@ -1,8 +1,14 @@
 {
-  "name": "printsimpleproxies",
+  "name": "print-simple-proxies",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
+  "description": "A Flesh & Blood proxy sheet builder — paste a decklist, adjust quantities, and print a cut-ready sheet.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshevensen/printsimpleproxies"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
