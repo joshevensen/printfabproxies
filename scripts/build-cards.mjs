@@ -22,6 +22,10 @@ const OUTPUT_PATH = new URL("../public/cards.json", import.meta.url);
 // or other non-expansion products we'd rather not proxy the printing details of.
 const EXCLUDED_SET_KEYWORDS = ["deck", "chapter", "strike", "promo"];
 
+// Sentinel for sets with no known release date — a valid far-future ISO date so
+// it sorts last and is safe if ever parsed as a real date.
+const FAR_FUTURE = "9999-12-31";
+
 async function fetchJson(url) {
   const res = await fetch(url);
   if (!res.ok) {
@@ -47,7 +51,7 @@ function indexSets(sets) {
       .map((p) => p.initial_release_date)
       .filter(Boolean)
       .sort();
-    releaseDate.set(s.id, dates[0] || "9999-99-99");
+    releaseDate.set(s.id, dates[0] || FAR_FUTURE);
   }
   return { excluded, releaseDate };
 }
@@ -59,8 +63,15 @@ function chooseBestPrinting(printings, sets) {
   if (withSet.length === 0) return (printings && printings[0]) || null;
   const allowed = withSet.filter((p) => !sets.excluded.has(p.set_id));
   const pool = allowed.length ? allowed : withSet;
-  const dateOf = (p) => sets.releaseDate.get(p.set_id) || "9999-99-99";
-  pool.sort((a, b) => dateOf(a).localeCompare(dateOf(b)) || a.set_id.localeCompare(b.set_id));
+  const dateOf = (p) => sets.releaseDate.get(p.set_id) || FAR_FUTURE;
+  // Sort by set release date, then set id, then printing id so the choice is
+  // fully deterministic even if the source reorders printings within a set.
+  pool.sort(
+    (a, b) =>
+      dateOf(a).localeCompare(dateOf(b)) ||
+      a.set_id.localeCompare(b.set_id) ||
+      (a.id || "").localeCompare(b.id || "")
+  );
   return pool[0];
 }
 
