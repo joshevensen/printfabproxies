@@ -52,6 +52,9 @@
   text-align: left;
   font-variant: small-caps;
   color: #514d47;
+  /* Keep "Print Simple" on one line (the explicit <br> still breaks before
+     "Proxies"); otherwise the narrow sidebar wraps it awkwardly. */
+  white-space: nowrap;
 }
 
 .wordmark__text--accent {

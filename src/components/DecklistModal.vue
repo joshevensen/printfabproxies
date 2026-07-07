@@ -92,7 +92,6 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
           <button type="button" class="btn btn--primary" @click="parseDeck">Check Decklist</button>
         </template>
         <template v-else>
-          <button type="button" class="btn btn--outline" @click="parseDeck">Recheck</button>
           <button
             type="button"
             class="btn btn--primary"

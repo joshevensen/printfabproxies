@@ -54,7 +54,14 @@ function closeModal() {
 
 function parseDeck() {
   state.decklistText = cleanDecklistText(state.decklistText);
-  state.parsedRows = parseDecklist(state.decklistText, state.dbIndex);
+  const rows = parseDecklist(state.decklistText, state.dbIndex);
+  state.parsedRows = rows;
+  // If everything matched cleanly there's nothing to resolve, so skip the
+  // extra confirm click and add straight to the preview.
+  if (rows.length > 0 && rows.every((r) => r.status === "ok")) {
+    confirmAndClose();
+    return;
+  }
   state.hasChecked = true;
 }
 
@@ -86,6 +93,10 @@ function buildResolvedFromParsed() {
 
 function confirmAndClose() {
   buildResolvedFromParsed();
+  // Reset the modal for next time now that these cards are in the preview.
+  state.decklistText = "";
+  state.parsedRows = [];
+  state.hasChecked = false;
   state.modalOpen = false;
 }
 
