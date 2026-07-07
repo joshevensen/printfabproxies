@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount } from "vue";
+import { onMounted, onBeforeUnmount, ref } from "vue";
 import Wordmark from "./components/Wordmark.vue";
 import SearchBox from "./components/SearchBox.vue";
 import CardPreview from "./components/CardPreview.vue";
@@ -8,8 +8,22 @@ import PrintSheet from "./components/PrintSheet.vue";
 import { useBuilder } from "./composables/useBuilder";
 import { usePrintSheet } from "./composables/usePrintSheet";
 
-const { state, ensureDbLoaded, openModal, previewTotalQty, pageCount } = useBuilder();
+const { state, ensureDbLoaded, openModal, previewTotalQty, pageCount, hasResolvedCards } =
+  useBuilder();
 const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides } = usePrintSheet();
+
+const copied = ref(false);
+let copiedTimer: ReturnType<typeof setTimeout> | undefined;
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    copied.value = true;
+    clearTimeout(copiedTimer);
+    copiedTimer = setTimeout(() => (copied.value = false), 1500);
+  } catch {
+    /* clipboard unavailable — the address bar still holds the shareable URL */
+  }
+}
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === "Escape") state.settingsOpen = false;
@@ -19,7 +33,10 @@ onMounted(() => {
   ensureDbLoaded();
   window.addEventListener("keydown", onKeydown);
 });
-onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", onKeydown);
+  clearTimeout(copiedTimer);
+});
 
 function toggleSettings() {
   state.settingsOpen = !state.settingsOpen;
@@ -79,6 +96,16 @@ function closeSettings() {
         <SearchBox />
 
         <button type="button" class="btn btn--outline" @click="openModal">Add Decklist</button>
+
+        <button
+          type="button"
+          class="btn btn--outline"
+          :disabled="!hasResolvedCards"
+          :title="hasResolvedCards ? 'Copy a link that reproduces this sheet' : 'Add cards first'"
+          @click="copyLink"
+        >
+          {{ copied ? "Copied!" : "Copy link" }}
+        </button>
 
         <div class="app__print">
           <div class="app__print-split">
@@ -300,6 +327,10 @@ function closeSettings() {
   border: 1.5px solid var(--fab-border);
   color: oklch(0.3 0.01 80);
   padding: 9px 16px;
+}
+
+.btn--outline:disabled {
+  opacity: 0.5;
 }
 
 .app__print {

@@ -5,9 +5,14 @@ import { buildDisplayProps, colorHex } from "../lib/cardDisplay";
 import { GROUP_DEFS, classifyGroup, groupDefFor } from "../lib/classify";
 import type { CardGroup } from "../lib/classify";
 import { collectAutoTokens } from "../lib/tokens";
+import { buildIdIndex, encodeCards, decodeCards, type IdIndex } from "../lib/shareLink";
 import { usePrintSheet } from "./usePrintSheet";
 
 const { buildPrintCards, pageCount } = usePrintSheet();
+
+// Reverse lookup (printing id -> card) for share links, built once the DB loads.
+let idIndex: IdIndex | null = null;
+const SHARE_PARAM = "cards";
 
 const state = reactive({
   dbCards: null as Card[] | null,
@@ -22,13 +27,38 @@ const state = reactive({
   searchFocused: false,
 });
 
-// Keep the (hidden) print sheet in sync with the live preview so Print always
-// reflects the current cards and quantities — there's no separate build step.
+// Keep the (hidden) print sheet and the shareable URL in sync with the live
+// preview so Print always reflects the current cards and the address bar is
+// always a link that reproduces this exact sheet.
 watch(
   () => state.resolvedCards,
-  (cards) => buildPrintCards(cards),
+  (cards) => {
+    buildPrintCards(cards);
+    syncUrl(cards);
+  },
   { immediate: true, deep: false }
 );
+
+// Mirror the preview into the `cards` query param. Guarded on idIndex so the
+// initial (empty) tick before the DB loads can't wipe a shared param we haven't
+// decoded yet.
+function syncUrl(cards: ResolvedCard[]) {
+  if (!idIndex || typeof window === "undefined") return;
+  const value = encodeCards(cards, idIndex);
+  const url = new URL(window.location.href);
+  // Only touch the share param so any unrelated query params are preserved.
+  if (value) url.searchParams.set(SHARE_PARAM, value);
+  else url.searchParams.delete(SHARE_PARAM);
+  window.history.replaceState(null, "", url.toString());
+}
+
+function loadFromUrl() {
+  if (!idIndex || typeof window === "undefined") return;
+  const value = new URL(window.location.href).searchParams.get(SHARE_PARAM);
+  if (!value) return;
+  const decoded = decodeCards(value, idIndex);
+  if (decoded.length) state.resolvedCards = decoded;
+}
 
 let loadPromise: Promise<void> | null = null;
 function ensureDbLoaded(): Promise<void> {
@@ -38,6 +68,8 @@ function ensureDbLoaded(): Promise<void> {
     .then((json) => {
       state.dbCards = normalizeDb(json);
       state.dbIndex = buildIndex(state.dbCards);
+      idIndex = buildIdIndex(state.dbCards);
+      loadFromUrl();
     })
     .catch(() => {});
   return loadPromise;
