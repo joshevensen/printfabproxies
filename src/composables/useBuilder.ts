@@ -46,7 +46,9 @@ function syncUrl(cards: ResolvedCard[]) {
   if (!idIndex || typeof window === "undefined") return;
   const value = encodeCards(cards, idIndex);
   const url = new URL(window.location.href);
-  url.search = value ? `${SHARE_PARAM}=${value}` : "";
+  // Only touch the share param so any unrelated query params are preserved.
+  if (value) url.searchParams.set(SHARE_PARAM, value);
+  else url.searchParams.delete(SHARE_PARAM);
   window.history.replaceState(null, "", url.toString());
 }
 

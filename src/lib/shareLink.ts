@@ -3,9 +3,9 @@ import { maxQtyFor } from "./classify";
 
 /**
  * Shareable-link encoding. A sheet is serialized into a single `cards` query
- * param as comma-separated entries, each `ID[.index][-qty]`:
+ * param as `_`-separated entries, each `ID[.index][-qty]`:
  *
- *   WTR215,ARC159-4,DTD164.1-2
+ *   WTR215_ARC159-4_DTD164.1-2
  *
  * - `ID` is the card's chosen printing id — stable across weekly DB rebuilds.
  * - `-qty` is added only when the quantity is > 1.
@@ -13,14 +13,17 @@ import { maxQtyFor } from "./classify";
  *   (double-faced / meld pairs) by indexing into a deterministically sorted
  *   group; it's omitted for the common single-card case (and for index 0).
  *
- * Delimiters (`,` `.` `-`) are all URL-safe and never appear in printing ids
- * (which are strictly alphanumeric), so entries parse unambiguously.
+ * Delimiters (`_` `.` `-`) never appear in printing ids (which are strictly
+ * alphanumeric) so entries parse unambiguously, and all survive
+ * URLSearchParams serialization unescaped (unlike `,`) so the link stays clean.
+ * Ids are normalized to uppercase in one place (printingId) so encode/decode
+ * key the index identically.
  */
 
 export type IdIndex = Map<string, Card[]>;
 
 function printingId(card: Card): string {
-  return card.printings[0]?.id || "";
+  return (card.printings[0]?.id || "").toUpperCase();
 }
 
 function sameCard(a: Card, b: Card): boolean {
@@ -63,7 +66,7 @@ export function encodeCards(resolved: ResolvedCard[], idIndex: IdIndex): string 
     if (!token) continue;
     parts.push(r.qty > 1 ? `${token}-${r.qty}` : token);
   }
-  return parts.join(",");
+  return parts.join("_");
 }
 
 const ENTRY_RE = /^([A-Za-z0-9]+)(?:\.(\d+))?(?:-(\d+))?$/;
@@ -71,7 +74,7 @@ const ENTRY_RE = /^([A-Za-z0-9]+)(?:\.(\d+))?(?:-(\d+))?$/;
 export function decodeCards(value: string, idIndex: IdIndex): ResolvedCard[] {
   const out: ResolvedCard[] = [];
   value
-    .split(",")
+    .split("_")
     .map((s) => s.trim())
     .filter(Boolean)
     .forEach((entry, i) => {
