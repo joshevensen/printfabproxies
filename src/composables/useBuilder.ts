@@ -1,24 +1,33 @@
-import { reactive, computed } from "vue";
+import { reactive, computed, watch } from "vue";
 import type { Card, ParsedRow, ResolvedCard, ProxyCardProps } from "../lib/types";
 import { normalizeDb, buildIndex, parseDecklist, cleanDecklistText } from "../lib/deckParser";
-import { buildDisplayProps } from "../lib/cardDisplay";
-import { classifyGroup, maxQtyFor } from "../lib/classify";
+import { buildDisplayProps, colorHex } from "../lib/cardDisplay";
+import { GROUP_DEFS, classifyGroup, groupDefFor } from "../lib/classify";
 import { collectAutoTokens } from "../lib/tokens";
 import { usePrintSheet } from "./usePrintSheet";
 
-type Step = "deck" | "preview" | "print";
-
-const { printState, buildPrintCards } = usePrintSheet();
+const { buildPrintCards, pageCount } = usePrintSheet();
 
 const state = reactive({
-  step: "deck" as Step,
   dbCards: null as Card[] | null,
   dbIndex: null as Map<string, Card[]> | null,
   decklistText: "",
   parsedRows: [] as ParsedRow[],
   hasChecked: false,
   resolvedCards: [] as ResolvedCard[],
+  modalOpen: false,
+  settingsOpen: false,
+  searchQuery: "",
+  searchFocused: false,
 });
+
+// Keep the (hidden) print sheet in sync with the live preview so Print always
+// reflects the current cards and quantities — there's no separate build step.
+watch(
+  () => state.resolvedCards,
+  (cards) => buildPrintCards(cards),
+  { immediate: true, deep: false }
+);
 
 let loadPromise: Promise<void> | null = null;
 function ensureDbLoaded(): Promise<void> {
@@ -31,6 +40,15 @@ function ensureDbLoaded(): Promise<void> {
     })
     .catch(() => {});
   return loadPromise;
+}
+
+// ---- Decklist modal ----------------------------------------------------
+
+function openModal() {
+  state.modalOpen = true;
+}
+function closeModal() {
+  state.modalOpen = false;
 }
 
 function parseDeck() {
@@ -62,18 +80,12 @@ function buildResolvedFromParsed() {
   state.resolvedCards = [...manual, ...collectAutoTokens(manual, state.dbIndex)];
 }
 
-function goToDeck() {
-  state.step = "deck";
+function confirmAndClose() {
+  buildResolvedFromParsed();
+  state.modalOpen = false;
 }
 
-function goToPreviewStep() {
-  if (state.parsedRows.length) buildResolvedFromParsed();
-  state.step = "preview";
-}
-
-function goToPrintStep() {
-  state.step = printState.printCards.length ? "print" : "preview";
-}
+// ---- Preview quantity editing -----------------------------------------
 
 function adjustQty(id: string, delta: number, maxQty?: number) {
   const cap = maxQty === undefined || maxQty === Infinity ? Infinity : maxQty;
@@ -86,16 +98,54 @@ function removeResolved(id: string) {
   state.resolvedCards = state.resolvedCards.filter((r) => r.id !== id);
 }
 
-function goToPrint() {
-  buildPrintCards(state.resolvedCards);
-  state.step = "print";
+// ---- Card search (add one at a time) ----------------------------------
+
+function handleSearchChange(e: Event) {
+  state.searchQuery = (e.target as HTMLInputElement).value;
 }
+function handleSearchFocus() {
+  state.searchFocused = true;
+}
+function handleSearchBlur() {
+  // Delay so a click on a result registers before the dropdown unmounts.
+  setTimeout(() => {
+    state.searchFocused = false;
+  }, 150);
+}
+
+function addCardFromSearch(card: Card) {
+  const cap = groupDefFor(card).maxQty;
+  const existing = state.resolvedCards.find(
+    (r) => r.card.name === card.name && (r.card.pitch || "") === (card.pitch || "")
+  );
+  if (existing) {
+    state.resolvedCards = state.resolvedCards.map((r) =>
+      r.id === existing.id ? { ...r, qty: Math.min(cap, r.qty + 1) } : r
+    );
+  } else {
+    state.resolvedCards = [
+      ...state.resolvedCards,
+      {
+        id: "search-" + card.name + "-" + (card.pitch || "") + "-" + Date.now(),
+        name: card.name,
+        qty: 1,
+        card,
+        printing: card.printings[0] || null,
+      },
+    ];
+  }
+  state.searchQuery = "";
+  state.searchFocused = false;
+}
+
+// ---- View models -------------------------------------------------------
 
 export interface CardRowView {
   id: string;
   qty: number;
   cardProps: ProxyCardProps;
   stackGhosts: { id: number; offset: number; z: number }[];
+  stackExtra: number;
   showQtyControls: boolean;
   incOpacity: number;
   incPointerEvents: "none" | "auto";
@@ -104,19 +154,56 @@ export interface CardRowView {
   remove: () => void;
 }
 
+export interface CardGroupView {
+  key: string;
+  label: string;
+  count: number;
+  rows: CardRowView[];
+}
+
+export interface NotFoundOptionView {
+  label: string;
+  borderColor: string;
+  color: string;
+  onSelect: () => void;
+}
+
+export interface NotFoundRowView {
+  qty: number;
+  name: string;
+  statusText: string;
+  statusBg: string;
+  statusColor: string;
+  showOptions: boolean;
+  options: NotFoundOptionView[];
+}
+
+export interface SearchResultView {
+  id: string;
+  name: string;
+  sub: string;
+  onAdd: () => void;
+}
+
+const GHOST_STEP = 9;
+const CONTROLS_GUTTER = 40;
+
 function toRow(entry: ResolvedCard): CardRowView {
-  const group = classifyGroup(entry.card);
-  const maxQty = maxQtyFor(entry.card);
-  const weapon = group === "arena" && maxQty === 2;
-  const showQtyControls = group !== "arena" || weapon;
+  const def = groupDefFor(entry.card);
+  const maxQty = def.maxQty;
   const ghostCount = Math.min(entry.qty - 1, 3);
-  const stackGhosts = Array.from({ length: ghostCount }, (_, i) => ({ id: i, offset: (i + 1) * 12, z: 5 - i }));
+  const stackGhosts = Array.from({ length: ghostCount }, (_, i) => ({
+    id: i,
+    offset: (i + 1) * GHOST_STEP,
+    z: 5 - i,
+  }));
   return {
     id: entry.id,
     qty: entry.qty,
     cardProps: buildDisplayProps(entry.card, entry.printing),
     stackGhosts,
-    showQtyControls,
+    stackExtra: 3 * GHOST_STEP + CONTROLS_GUTTER,
+    showQtyControls: def.showQtyControls,
     incOpacity: entry.qty >= maxQty ? 0.35 : 1,
     incPointerEvents: entry.qty >= maxQty ? "none" : "auto",
     inc: () => adjustQty(entry.id, 1, maxQty),
@@ -125,36 +212,109 @@ function toRow(entry: ResolvedCard): CardRowView {
   };
 }
 
-const totalQty = computed(() => state.parsedRows.reduce((s, r) => s + (r.status === "ok" ? r.qty : 0), 0));
-const notFoundRows = computed(() => state.parsedRows.filter((r) => r.status !== "ok"));
+const totalQty = computed(() =>
+  state.parsedRows.reduce((s, r) => s + (r.status === "ok" ? r.qty : 0), 0)
+);
+
+const notFoundRows = computed<NotFoundRowView[]>(() =>
+  state.parsedRows
+    .map((row, ri) => {
+      let statusText: string, statusBg: string, statusColor: string;
+      if (row.status === "ok") {
+        statusText = "Matched";
+        statusBg = "oklch(0.93 0.03 155)";
+        statusColor = "oklch(0.35 0.08 155)";
+      } else if (row.status === "ambiguous") {
+        statusText = "Pick pitch";
+        statusBg = "oklch(0.93 0.05 85)";
+        statusColor = "oklch(0.4 0.1 70)";
+      } else {
+        statusText = "Not found";
+        statusBg = "oklch(0.93 0.05 25)";
+        statusColor = "oklch(0.4 0.12 25)";
+      }
+      const options: NotFoundOptionView[] =
+        row.status === "ambiguous"
+          ? row.matches.map((m, mi) => ({
+              label: (m.color || "Pitch") + (m.pitch ? " " + m.pitch : ""),
+              borderColor: colorHex(m.color),
+              color: colorHex(m.color),
+              onSelect: () => chooseMatch(ri, mi),
+            }))
+          : [];
+      return {
+        qty: row.qty,
+        name: row.name,
+        statusText,
+        statusBg,
+        statusColor,
+        showOptions: row.status === "ambiguous",
+        options,
+      };
+    })
+    .filter((r) => r.statusText !== "Matched")
+);
+
 const previewTotalQty = computed(() => state.resolvedCards.reduce((s, r) => s + r.qty, 0));
-const arenaRows = computed(() =>
-  state.resolvedCards.filter((e) => classifyGroup(e.card) === "arena").map(toRow)
+const hasResolvedCards = computed(() => state.resolvedCards.length > 0);
+
+const cardGroups = computed<CardGroupView[]>(() =>
+  GROUP_DEFS.map((def) => {
+    const rows = state.resolvedCards
+      .filter((e) => classifyGroup(e.card) === def.key)
+      .map(toRow);
+    return {
+      key: def.key,
+      label: def.label,
+      rows,
+      count: rows.reduce((s, r) => s + r.qty, 0),
+    };
+  }).filter((g) => g.rows.length > 0)
 );
-const deckRows = computed(() =>
-  state.resolvedCards.filter((e) => classifyGroup(e.card) === "deck").map(toRow)
+
+const searchResults = computed<SearchResultView[]>(() => {
+  const query = state.searchQuery.trim().toLowerCase();
+  if (query.length < 1 || !state.dbCards) return [];
+  return state.dbCards
+    .filter((c) => c.name.toLowerCase().includes(query))
+    .slice(0, 8)
+    .map((c, i) => ({
+      id: c.name + "-" + (c.pitch || "") + "-" + i,
+      name: c.name,
+      sub: [c.color, c.pitch].filter(Boolean).join(" · ") || c.type_text,
+      onAdd: () => addCardFromSearch(c),
+    }));
+});
+
+const showSearchDropdown = computed(
+  () => state.searchFocused && state.searchQuery.trim().length >= 1 && searchResults.value.length > 0
 );
-const otherRows = computed(() =>
-  state.resolvedCards.filter((e) => classifyGroup(e.card) === "other").map(toRow)
+const showSearchEmpty = computed(
+  () => state.searchFocused && state.searchQuery.trim().length >= 1 && searchResults.value.length === 0
 );
 
 export function useBuilder() {
   return {
     state,
     ensureDbLoaded,
+    openModal,
+    closeModal,
+    confirmAndClose,
     parseDeck,
     chooseMatch,
-    goToDeck,
-    goToPreviewStep,
-    goToPrintStep,
-    goToPrint,
     adjustQty,
     removeResolved,
+    handleSearchChange,
+    handleSearchFocus,
+    handleSearchBlur,
     totalQty,
     notFoundRows,
     previewTotalQty,
-    arenaRows,
-    deckRows,
-    otherRows,
+    hasResolvedCards,
+    cardGroups,
+    searchResults,
+    showSearchDropdown,
+    showSearchEmpty,
+    pageCount,
   };
 }
