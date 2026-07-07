@@ -13,7 +13,9 @@ const { cardGroups, hasResolvedCards, openModal } = useBuilder();
         Open Decklist above, paste your list, and check it to see your proxies here — or use
         the search box to add cards one at a time.
       </div>
-      <div class="btn btn--primary preview__empty-btn" @click="openModal">Add Decklist</div>
+      <button type="button" class="btn btn--primary preview__empty-btn" @click="openModal">
+        Add Decklist
+      </button>
     </div>
 
     <template v-for="grp in cardGroups" :key="grp.key">
@@ -36,18 +38,28 @@ const { cardGroups, hasResolvedCards, openModal } = useBuilder();
             <div class="preview__controls-wrap">
               <div class="preview__controls">
                 <template v-if="row.showQtyControls">
-                  <div class="preview__qty-btn" @click="row.dec">−</div>
-                  <div class="preview__qty">{{ row.qty }}</div>
-                  <div
+                  <button
+                    type="button"
                     class="preview__qty-btn"
-                    :style="{ opacity: row.incOpacity, pointerEvents: row.incPointerEvents }"
+                    :disabled="row.decDisabled"
+                    aria-label="Decrease quantity"
+                    @click="row.dec"
+                  >
+                    −
+                  </button>
+                  <div class="preview__qty">{{ row.qty }}</div>
+                  <button
+                    type="button"
+                    class="preview__qty-btn"
+                    :disabled="row.incDisabled"
+                    aria-label="Increase quantity"
                     @click="row.inc"
                   >
                     +
-                  </div>
+                  </button>
                 </template>
                 <div v-else class="preview__qty preview__qty--fixed">×{{ row.qty }}</div>
-                <div class="preview__remove" @click="row.remove">Remove</div>
+                <button type="button" class="preview__remove" @click="row.remove">Remove</button>
               </div>
             </div>
           </div>
@@ -178,6 +190,10 @@ const { cardGroups, hasResolvedCards, openModal } = useBuilder();
   font-weight: 800;
   cursor: pointer;
   font-size: 13px;
+}
+
+.preview__qty-btn:disabled {
+  opacity: 0.35;
 }
 
 .preview__qty {

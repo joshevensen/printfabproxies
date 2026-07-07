@@ -1,20 +1,33 @@
 <script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from "vue";
 import { useBuilder } from "../composables/useBuilder";
 
 const { state, parseDeck, confirmAndClose, closeModal, totalQty, notFoundRows } = useBuilder();
+
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 function handleDecklistChange(e: Event) {
   state.decklistText = (e.target as HTMLTextAreaElement).value;
   state.hasChecked = false;
 }
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") closeModal();
+}
+
+onMounted(() => {
+  window.addEventListener("keydown", onKeydown);
+  textareaRef.value?.focus();
+});
+onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 </script>
 
 <template>
   <div class="modal-backdrop fab-app-chrome" @click="closeModal">
-    <div class="modal" @click.stop>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Paste your FaB decklist" @click.stop>
       <div class="modal__header">
         <div class="modal__title">Paste Your FaB Decklist</div>
-        <div class="modal__close" @click="closeModal">✕</div>
+        <button type="button" class="modal__close" aria-label="Close" @click="closeModal">✕</button>
       </div>
 
       <div class="modal__body">
@@ -33,6 +46,7 @@ function handleDecklistChange(e: Event) {
         </ul>
 
         <textarea
+          ref="textareaRef"
           class="modal__textarea"
           :value="state.decklistText"
           placeholder="1 Fyendal's Spring Tunic..."
@@ -57,15 +71,16 @@ function handleDecklistChange(e: Event) {
                 </div>
               </div>
               <div v-if="row.showOptions" class="modal__options">
-                <div
+                <button
                   v-for="(opt, oi) in row.options"
                   :key="oi"
+                  type="button"
                   class="modal__option"
                   :style="{ borderColor: opt.borderColor, color: opt.color }"
                   @click="opt.onSelect"
                 >
                   {{ opt.label }}
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -74,11 +89,12 @@ function handleDecklistChange(e: Event) {
 
       <div class="modal__footer">
         <template v-if="!state.hasChecked">
-          <div class="btn btn--primary" @click="parseDeck">Check Decklist</div>
+          <button type="button" class="btn btn--primary" @click="parseDeck">Check Decklist</button>
         </template>
         <template v-else>
-          <div class="btn btn--outline" @click="parseDeck">Recheck</div>
-          <div
+          <button type="button" class="btn btn--outline" @click="parseDeck">Recheck</button>
+          <button
+            type="button"
             class="btn btn--primary"
             :style="{
               background: state.parsedRows.length ? '#B5451E' : 'oklch(0.8 0.01 80)',
@@ -87,7 +103,7 @@ function handleDecklistChange(e: Event) {
             @click="confirmAndClose"
           >
             Add {{ totalQty }} cards
-          </div>
+          </button>
         </template>
       </div>
     </div>

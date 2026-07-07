@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import Wordmark from "./components/Wordmark.vue";
 import SearchBox from "./components/SearchBox.vue";
 import CardPreview from "./components/CardPreview.vue";
@@ -11,9 +11,15 @@ import { usePrintSheet } from "./composables/usePrintSheet";
 const { state, ensureDbLoaded, openModal, previewTotalQty, pageCount } = useBuilder();
 const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides } = usePrintSheet();
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") state.settingsOpen = false;
+}
+
 onMounted(() => {
   ensureDbLoaded();
+  window.addEventListener("keydown", onKeydown);
 });
+onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 
 function toggleSettings() {
   state.settingsOpen = !state.settingsOpen;
@@ -24,7 +30,7 @@ function closeSettings() {
 </script>
 
 <template>
-  <div class="app fab-app-chrome">
+  <div class="app fab-app-chrome" :inert="state.modalOpen">
     <!-- LEFT COLUMN -->
     <aside class="app__sidebar">
       <div class="app__wordmark">
@@ -72,12 +78,18 @@ function closeSettings() {
       <div class="app__header-actions">
         <SearchBox />
 
-        <div class="btn btn--outline" @click="openModal">Add Decklist</div>
+        <button type="button" class="btn btn--outline" @click="openModal">Add Decklist</button>
 
         <div class="app__print">
           <div class="app__print-split">
-            <div class="app__print-btn" @click="doPrint">Print</div>
-            <div class="app__print-gear" @click="toggleSettings" aria-label="Print settings">
+            <button type="button" class="app__print-btn" @click="doPrint">Print</button>
+            <button
+              type="button"
+              class="app__print-gear"
+              aria-label="Print settings"
+              :aria-expanded="state.settingsOpen"
+              @click="toggleSettings"
+            >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z"
@@ -91,17 +103,19 @@ function closeSettings() {
                   stroke-linejoin="round"
                 ></path>
               </svg>
-            </div>
+            </button>
           </div>
 
           <div v-if="state.settingsOpen" class="app__settings" @click.stop>
             <div>
-              <div class="app__settings-label">Paper size</div>
-              <div class="app__segmented">
-                <div
+              <div class="app__settings-label" id="paper-size-label">Paper size</div>
+              <div class="app__segmented" role="group" aria-labelledby="paper-size-label">
+                <button
                   v-for="size in ['letter', 'a4', 'legal'] as const"
                   :key="size"
+                  type="button"
                   class="app__segment"
+                  :aria-pressed="printState.paperSize === size"
                   :style="{
                     background: printState.paperSize === size ? '#B5451E' : 'transparent',
                     color: printState.paperSize === size ? '#f7f4ec' : 'inherit',
@@ -109,11 +123,17 @@ function closeSettings() {
                   @click="setPaperSize(size)"
                 >
                   {{ size === "letter" ? "Letter" : size === "a4" ? "A4" : "Legal" }}
-                </div>
+                </button>
               </div>
             </div>
 
-            <div class="app__toggle" @click="toggleBorderless">
+            <button
+              type="button"
+              class="app__toggle"
+              role="switch"
+              :aria-checked="printState.borderless"
+              @click="toggleBorderless"
+            >
               <div>
                 <div class="app__toggle-label">Borderless</div>
                 <div class="app__toggle-desc">No page margin</div>
@@ -124,9 +144,15 @@ function closeSettings() {
               >
                 <div class="app__switch-knob" :style="{ left: printState.borderless ? '18px' : '3px' }"></div>
               </div>
-            </div>
+            </button>
 
-            <div class="app__toggle" @click="toggleCutGuides">
+            <button
+              type="button"
+              class="app__toggle"
+              role="switch"
+              :aria-checked="printState.cutGuides"
+              @click="toggleCutGuides"
+            >
               <div>
                 <div class="app__toggle-label">Cut guides</div>
                 <div class="app__toggle-desc">Dashed outline per card</div>
@@ -137,7 +163,7 @@ function closeSettings() {
               >
                 <div class="app__switch-knob" :style="{ left: printState.cutGuides ? '18px' : '3px' }"></div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -353,6 +379,8 @@ function closeSettings() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  text-align: left;
   cursor: pointer;
 }
 

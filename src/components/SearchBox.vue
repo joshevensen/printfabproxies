@@ -1,36 +1,56 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useBuilder } from "../composables/useBuilder";
 
-const {
-  state,
-  handleSearchChange,
-  handleSearchFocus,
-  handleSearchBlur,
-  searchResults,
-  showSearchDropdown,
-  showSearchEmpty,
-} = useBuilder();
+const { state, handleSearchChange, searchResults, showSearchDropdown, showSearchEmpty } =
+  useBuilder();
+
+const inputRef = ref<HTMLInputElement | null>(null);
+
+// Track focus at the container level so keyboard users can Tab from the input
+// into the result buttons without the dropdown collapsing; it only closes once
+// focus leaves the search widget entirely.
+function onFocusIn() {
+  state.searchFocused = true;
+}
+function onFocusOut(e: FocusEvent) {
+  const container = e.currentTarget as HTMLElement;
+  if (!container.contains(e.relatedTarget as Node | null)) {
+    state.searchFocused = false;
+  }
+}
+
+function addAndRefocus(add: () => void) {
+  add();
+  inputRef.value?.focus();
+}
 </script>
 
 <template>
-  <div class="search">
+  <div class="search" @focusin="onFocusIn" @focusout="onFocusOut">
     <input
+      ref="inputRef"
       class="search__input"
       :value="state.searchQuery"
       placeholder="Search cards to add…"
+      aria-label="Search cards to add"
       @input="handleSearchChange"
-      @focus="handleSearchFocus"
-      @blur="handleSearchBlur"
     />
 
     <div v-if="showSearchDropdown" class="search__dropdown">
-      <div v-for="res in searchResults" :key="res.id" class="search__result" @click="res.onAdd">
+      <button
+        v-for="res in searchResults"
+        :key="res.id"
+        type="button"
+        class="search__result"
+        @click="addAndRefocus(res.onAdd)"
+      >
         <div>
           <div class="search__result-name">{{ res.name }}</div>
           <div class="search__result-sub">{{ res.sub }}</div>
         </div>
         <div class="search__result-add">+ Add</div>
-      </div>
+      </button>
     </div>
     <div v-else-if="showSearchEmpty" class="search__empty">No matches.</div>
   </div>
@@ -72,12 +92,15 @@ const {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  width: 100%;
+  text-align: left;
   padding: 8px 10px;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.search__result:hover {
+.search__result:hover,
+.search__result:focus-visible {
   background: var(--fab-tab-bg);
 }
 

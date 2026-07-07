@@ -107,15 +107,6 @@ function removeResolved(id: string) {
 function handleSearchChange(e: Event) {
   state.searchQuery = (e.target as HTMLInputElement).value;
 }
-function handleSearchFocus() {
-  state.searchFocused = true;
-}
-function handleSearchBlur() {
-  // Delay so a click on a result registers before the dropdown unmounts.
-  setTimeout(() => {
-    state.searchFocused = false;
-  }, 150);
-}
 
 function addCardFromSearch(card: Card) {
   const cap = groupDefFor(card).maxQty;
@@ -151,8 +142,8 @@ export interface CardRowView {
   stackGhosts: { id: number; offset: number; z: number }[];
   stackExtra: number;
   showQtyControls: boolean;
-  incOpacity: number;
-  incPointerEvents: "none" | "auto";
+  incDisabled: boolean;
+  decDisabled: boolean;
   inc: () => void;
   dec: () => void;
   remove: () => void;
@@ -208,8 +199,8 @@ function toRow(entry: ResolvedCard): CardRowView {
     stackGhosts,
     stackExtra: 3 * GHOST_STEP + CONTROLS_GUTTER,
     showQtyControls: def.showQtyControls,
-    incOpacity: entry.qty >= maxQty ? 0.35 : 1,
-    incPointerEvents: entry.qty >= maxQty ? "none" : "auto",
+    incDisabled: entry.qty >= maxQty,
+    decDisabled: entry.qty <= 1,
     inc: () => adjustQty(entry.id, 1, maxQty),
     dec: () => adjustQty(entry.id, -1),
     remove: () => removeResolved(entry.id),
@@ -315,8 +306,6 @@ export function useBuilder() {
     adjustQty,
     removeResolved,
     handleSearchChange,
-    handleSearchFocus,
-    handleSearchBlur,
     totalQty,
     notFoundRows,
     previewTotalQty,
