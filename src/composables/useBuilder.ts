@@ -3,6 +3,7 @@ import type { Card, ParsedRow, ResolvedCard, ProxyCardProps } from "../lib/types
 import { normalizeDb, buildIndex, parseDecklist, cleanDecklistText } from "../lib/deckParser";
 import { buildDisplayProps, colorHex } from "../lib/cardDisplay";
 import { GROUP_DEFS, classifyGroup, groupDefFor } from "../lib/classify";
+import type { CardGroup } from "../lib/classify";
 import { collectAutoTokens } from "../lib/tokens";
 import { usePrintSheet } from "./usePrintSheet";
 
@@ -72,7 +73,10 @@ function buildResolvedFromParsed() {
       return {
         id: "r" + i + "-" + Date.now(),
         name: row.name,
-        qty: row.qty,
+        // Clamp imported counts to the group cap: singleton groups (Hero,
+        // Equipment) hide the steppers, so an over-limit import would
+        // otherwise be stuck uneditable.
+        qty: Math.min(groupDefFor(card).maxQty, Math.max(1, row.qty)),
         card,
         printing: card.printings[0] || null,
       };
@@ -155,7 +159,7 @@ export interface CardRowView {
 }
 
 export interface CardGroupView {
-  key: string;
+  key: CardGroup;
   label: string;
   count: number;
   rows: CardRowView[];
@@ -212,8 +216,14 @@ function toRow(entry: ResolvedCard): CardRowView {
   };
 }
 
+// Mirrors the per-group clamping in buildResolvedFromParsed so the modal's
+// "Add N cards" count matches what actually lands in the preview.
 const totalQty = computed(() =>
-  state.parsedRows.reduce((s, r) => s + (r.status === "ok" ? r.qty : 0), 0)
+  state.parsedRows.reduce((s, r) => {
+    if (r.status !== "ok" || r.chosenIndex === null) return s;
+    const card = r.matches[r.chosenIndex];
+    return s + Math.min(groupDefFor(card).maxQty, Math.max(1, r.qty));
+  }, 0)
 );
 
 const notFoundRows = computed<NotFoundRowView[]>(() =>
