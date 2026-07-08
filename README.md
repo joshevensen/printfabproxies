@@ -42,11 +42,13 @@ The card-type watermark icons in `public/icons/` are from
 | File | Author |
 | --- | --- |
 | `hero.svg` | Cathelineau |
-| `legs.svg`, `head.svg`, `chest.svg`, `weapon.svg`, `attack.svg`, `token.svg`, `item.svg`, `aura.svg`, `action.svg` | Lorc |
-| `arms.svg`, `instant.svg` | Delapouite |
+| `legs.svg`, `head.svg`, `chest.svg`, `weapon.svg`, `attack.svg`, `token.svg`, `item.svg`, `aura.svg`, `action.svg`, `resource.svg`, `equipment.svg`, `ally.svg`, `fallback.svg` | Lorc |
+| `arms.svg`, `instant.svg`, `event.svg`, `marked.svg` | Delapouite |
 | `attack-reaction.svg` | Andymeneely |
 | `defense-reaction.svg` | Felbrigg |
 | `block.svg` | sbed |
+
+`off-hand.svg` is an original icon made for this project (not from game-icons.net).
 
 ## License
 

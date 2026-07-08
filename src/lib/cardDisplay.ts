@@ -81,18 +81,28 @@ const TYPE_ICON_MAP: Record<string, string> = {
   item: "item.svg",
   aura: "aura.svg",
   action: "action.svg",
+  event: "event.svg",
+  ally: "ally.svg",
+  resource: "resource.svg",
+  equipment: "equipment.svg",
+  marked: "marked.svg",
+  fallback: "fallback.svg",
 };
 
-export function classifyIconKey(types: string[] | undefined): string | null {
+// Every card resolves to an icon: a specific card-type match, or "fallback".
+export function classifyIconKey(types: string[] | undefined): string {
   const t = types || [];
   const has = (name: string) => t.some((x) => x.toLowerCase() === name.toLowerCase());
-  if (has("Hero")) return "hero";
+  // Hero-like cards share the hero icon.
+  if (has("Hero") || has("Demi-Hero") || has("Mentor")) return "hero";
   if (has("Legs")) return "legs";
   if (has("Arms")) return "arms";
   if (has("Head")) return "head";
   if (has("Chest")) return "chest";
   if (has("Off-Hand")) return "offHand";
   if (has("Weapon")) return "weapon";
+  // Equipment with no specific slot above (Quiver, Base, …) gets the generic icon.
+  if (has("Equipment")) return "equipment";
   if (has("Attack Reaction")) return "attackReaction";
   if (has("Attack")) return "attack";
   if (has("Defense Reaction")) return "defenseReaction";
@@ -102,12 +112,16 @@ export function classifyIconKey(types: string[] | undefined): string | null {
   if (has("Item")) return "item";
   if (has("Aura")) return "aura";
   if (has("Action")) return "action";
-  return null;
+  if (has("Ally")) return "ally";
+  if (has("Event")) return "event";
+  if (has("Resource")) return "resource";
+  return "fallback";
 }
 
-export function watermarkIconUrl(types: string[] | undefined): string {
-  const key = classifyIconKey(types);
-  return key ? ICON_BASE + TYPE_ICON_MAP[key] : "";
+// The Marked token has no types in the source data, so key it by name.
+function iconKeyForCard(card: Card): string {
+  if (card.name === "Marked") return "marked";
+  return classifyIconKey(card.types);
 }
 
 export function buildDisplayProps(card: Card, printing: Printing | null): ProxyCardProps {
@@ -127,8 +141,8 @@ export function buildDisplayProps(card: Card, printing: Printing | null): ProxyC
     classText,
     restTypeText,
     dividerBorder: "1px solid #1c1b19",
-    watermarkIconUrl: watermarkIconUrl(card.types),
-    hasWatermarkIcon: !!classifyIconKey(card.types),
+    watermarkIconUrl: ICON_BASE + TYPE_ICON_MAP[iconKeyForCard(card)],
+    hasWatermarkIcon: true,
     functionalHtml: html || "—",
     hasGlossary: glossary.length > 0,
     glossary,
