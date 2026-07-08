@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import Wordmark from "./components/Wordmark.vue";
 import SearchBox from "./components/SearchBox.vue";
 import CardPreview from "./components/CardPreview.vue";
@@ -8,22 +8,9 @@ import PrintSheet from "./components/PrintSheet.vue";
 import { useBuilder } from "./composables/useBuilder";
 import { usePrintSheet } from "./composables/usePrintSheet";
 
-const { state, ensureDbLoaded, openModal, previewTotalQty, pageCount, hasResolvedCards } =
+const { state, ensureDbLoaded, openModal, clearAll, previewTotalQty, pageCount, hasResolvedCards } =
   useBuilder();
 const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides } = usePrintSheet();
-
-const copied = ref(false);
-let copiedTimer: ReturnType<typeof setTimeout> | undefined;
-async function copyLink() {
-  try {
-    await navigator.clipboard.writeText(window.location.href);
-    copied.value = true;
-    clearTimeout(copiedTimer);
-    copiedTimer = setTimeout(() => (copied.value = false), 1500);
-  } catch {
-    /* clipboard unavailable — the address bar still holds the shareable URL */
-  }
-}
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === "Escape") state.settingsOpen = false;
@@ -33,10 +20,7 @@ onMounted(() => {
   ensureDbLoaded();
   window.addEventListener("keydown", onKeydown);
 });
-onBeforeUnmount(() => {
-  window.removeEventListener("keydown", onKeydown);
-  clearTimeout(copiedTimer);
-});
+onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 
 function toggleSettings() {
   state.settingsOpen = !state.settingsOpen;
@@ -101,10 +85,10 @@ function closeSettings() {
           type="button"
           class="btn btn--outline"
           :disabled="!hasResolvedCards"
-          :title="hasResolvedCards ? 'Copy a link that reproduces this sheet' : 'Add cards first'"
-          @click="copyLink"
+          title="Remove all cards from the preview"
+          @click="clearAll"
         >
-          {{ copied ? "Copied!" : "Copy link" }}
+          Clear
         </button>
 
         <div class="app__print">

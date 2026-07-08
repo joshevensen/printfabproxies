@@ -145,6 +145,10 @@ function removeResolved(id: string) {
   state.resolvedCards = state.resolvedCards.filter((r) => r.id !== id);
 }
 
+function clearAll() {
+  state.resolvedCards = [];
+}
+
 // ---- Card search (add one at a time) ----------------------------------
 
 function handleSearchChange(e: Event) {
@@ -156,12 +160,13 @@ function addCardFromSearch(card: Card) {
   const existing = state.resolvedCards.find(
     (r) => r.card.name === card.name && (r.card.pitch || "") === (card.pitch || "")
   );
+  let next: ResolvedCard[];
   if (existing) {
-    state.resolvedCards = state.resolvedCards.map((r) =>
+    next = state.resolvedCards.map((r) =>
       r.id === existing.id ? { ...r, qty: Math.min(cap, r.qty + 1) } : r
     );
   } else {
-    state.resolvedCards = [
+    next = [
       ...state.resolvedCards,
       {
         id: "search-" + card.name + "-" + (card.pitch || "") + "-" + Date.now(),
@@ -172,6 +177,9 @@ function addCardFromSearch(card: Card) {
       },
     ];
   }
+  // Pull in any tokens/created cards this card implies that aren't present yet,
+  // matching the decklist flow (collectAutoTokens skips already-listed names).
+  state.resolvedCards = [...next, ...collectAutoTokens(next, state.dbIndex)];
   state.searchQuery = "";
   state.searchFocused = false;
 }
@@ -306,6 +314,7 @@ const cardGroups = computed<CardGroupView[]>(() =>
   GROUP_DEFS.map((def) => {
     const rows = state.resolvedCards
       .filter((e) => classifyGroup(e.card) === def.key)
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
       .map(toRow);
     return {
       key: def.key,
@@ -348,6 +357,7 @@ export function useBuilder() {
     chooseMatch,
     adjustQty,
     removeResolved,
+    clearAll,
     handleSearchChange,
     totalQty,
     notFoundRows,
