@@ -36,6 +36,8 @@ export interface ResolvedCard {
   qty: number;
   card: Card;
   printing: Printing | null;
+  // Auto-added by token/create detection (grouped under Other regardless of type).
+  auto?: boolean;
 }
 
 export interface GlossaryEntry {

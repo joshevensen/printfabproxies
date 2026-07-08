@@ -226,8 +226,17 @@ export interface SearchResultView {
 const GHOST_STEP = 9;
 const CONTROLS_GUTTER = 40;
 
+const DEF_BY_KEY = new Map(GROUP_DEFS.map((d) => [d.key, d]));
+
+// Auto-added cards (created tokens/cards, Marked) live under Other regardless
+// of their real type, so a created Attack like Crouching Tiger doesn't land in
+// the Attacks section.
+function effectiveGroup(entry: ResolvedCard): CardGroup {
+  return entry.auto ? "other" : classifyGroup(entry.card);
+}
+
 function toRow(entry: ResolvedCard): CardRowView {
-  const def = groupDefFor(entry.card);
+  const def = DEF_BY_KEY.get(effectiveGroup(entry))!;
   const maxQty = def.maxQty;
   const ghostCount = Math.min(entry.qty - 1, 3);
   const stackGhosts = Array.from({ length: ghostCount }, (_, i) => ({
@@ -305,7 +314,7 @@ const hasResolvedCards = computed(() => state.resolvedCards.length > 0);
 const cardGroups = computed<CardGroupView[]>(() =>
   GROUP_DEFS.map((def) => {
     const rows = state.resolvedCards
-      .filter((e) => classifyGroup(e.card) === def.key)
+      .filter((e) => effectiveGroup(e) === def.key)
       .map(toRow);
     return {
       key: def.key,
