@@ -53,6 +53,7 @@ const TYPE_ICON_MAP: Record<string, string> = {
   arms: "arms.svg",
   head: "head.svg",
   chest: "chest.svg",
+  offHand: "off-hand.svg",
   weapon: "weapon.svg",
   attackReaction: "attack-reaction.svg",
   attack: "attack.svg",
@@ -73,6 +74,7 @@ export function classifyIconKey(types: string[] | undefined): string | null {
   if (has("Arms")) return "arms";
   if (has("Head")) return "head";
   if (has("Chest")) return "chest";
+  if (has("Off-Hand")) return "offHand";
   if (has("Weapon")) return "weapon";
   if (has("Attack Reaction")) return "attackReaction";
   if (has("Attack")) return "attack";
