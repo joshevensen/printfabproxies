@@ -41,11 +41,11 @@ function closeSettings() {
       <div>
         <div class="app__side-title">How it works</div>
         <ul class="app__side-list">
-          <li>This proxy service only supports Flesh &amp; Blood cards.</li>
-          <li>Use <b>Add Decklist</b> to paste your list, or the <b>search box</b> to add cards one at a time.</li>
-          <li>Cards you don't want can be removed from the preview; quantities can be adjusted there too.</li>
           <li>Tokens created by your cards are added automatically — no need to list them.</li>
-          <li>4 copies max per Deck card, 2 for Weapons, 1 for Heroes/Equipment, no limit on Other.</li>
+          <li>
+            Copy limits per section: 4 for deck cards (Attacks, Reactions, Instants, Actions, Items,
+            Auras, Blocks), 2 for Weapons, 1 for Hero and Equipment, and no limit on Other.
+          </li>
         </ul>
       </div>
 
