@@ -1,4 +1,4 @@
-# Print Simple Proxies
+# Print Fab Proxies
 
 A Flesh & Blood proxy sheet builder. Paste a decklist, match it against the card
 database, adjust quantities, and print a cut-ready sheet.

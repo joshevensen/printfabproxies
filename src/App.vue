@@ -62,7 +62,7 @@ function closeSettings() {
       <div class="app__disclosures">
         <div class="app__disclosures-title">DISCLOSURES</div>
         <div class="app__disclosures-text">
-          Print Simple Proxies is in no way affiliated with Legend Story Studios. Legend Story
+          Print Fab Proxies is in no way affiliated with Legend Story Studios. Legend Story
           Studios&reg;, Flesh and Blood&trade;, and set names are trademarks of Legend Story Studios.
           Flesh and Blood characters, cards, logos, and art are property of Legend Story Studios.
         </div>

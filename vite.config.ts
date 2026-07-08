@@ -3,8 +3,8 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
-  // Project Pages are served from https://<user>.github.io/printsimpleproxies/,
+  // Project Pages are served from https://<user>.github.io/printfabproxies/,
   // so built asset URLs need that prefix. The dev server stays at the root.
-  base: command === 'build' ? '/printsimpleproxies/' : '/',
+  base: command === 'build' ? '/printfabproxies/' : '/',
   plugins: [vue()],
 }))

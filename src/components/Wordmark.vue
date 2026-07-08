@@ -2,10 +2,10 @@
   <div class="wordmark">
     <div class="wordmark__badge">
       <div class="wordmark__badge-text">
-        <span class="wordmark__badge-letter">P</span><span class="wordmark__badge-letter wordmark__badge-letter--accent">S</span><span class="wordmark__badge-letter">P</span>
+        <span class="wordmark__badge-letter">P</span><span class="wordmark__badge-letter wordmark__badge-letter--accent">F</span><span class="wordmark__badge-letter">P</span>
       </div>
     </div>
-    <div class="wordmark__text">Print <span class="wordmark__text--accent">Simple</span><br />Proxies</div>
+    <div class="wordmark__text">Print <span class="wordmark__text--accent">Fab</span><br />Proxies</div>
   </div>
 </template>
 
@@ -52,7 +52,7 @@
   text-align: left;
   font-variant: small-caps;
   color: #514d47;
-  /* Keep "Print Simple" on one line (the explicit <br> still breaks before
+  /* Keep "Print Fab" on one line (the explicit <br> still breaks before
      "Proxies"); otherwise the narrow sidebar wraps it awkwardly. */
   white-space: nowrap;
 }
