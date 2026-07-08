@@ -53,7 +53,7 @@ function resolveName(rest: string, nameSet: Set<string>): string | null {
 /**
  * Scans the resolved decklist for cards it implies (created tokens/cards and
  * the Marked aura) and returns them, skipping anything already listed. Each
- * carries `auto: true` so the preview can group it under Other.
+ * lands in its natural group in the preview based on its card type.
  */
 export function collectAutoTokens(
   resolvedCards: ResolvedCard[],
@@ -104,7 +104,6 @@ export function collectAutoTokens(
       qty,
       card,
       printing: card.printings[0] || null,
-      auto: true,
     });
   });
   return tokens;
