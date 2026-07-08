@@ -22,12 +22,29 @@ function formatFunctional(card: Card): { html: string; terms: string[] } {
   return { html, terms };
 }
 
+// Card keywords appear in compound forms that all share one glossary entry:
+// "Rhinar Specialization", "Ice Fusion", "Earth Bond", "Channel Lightning",
+// "Essence of Earth", and value-suffixed ones like "Spellvoid X" / "Amp 2".
+// Normalize each to its base keyword name.
+function canonicalKeyword(term: string): string {
+  const t = term
+    .replace(/\s+(?:x|\d+)$/i, "")
+    .trim()
+    .toLowerCase();
+  if (/\sspecialization$/.test(t)) return "specialization";
+  if (/\sfusion$/.test(t)) return "fusion";
+  if (/\sbond$/.test(t)) return "bond";
+  if (/^essence\b/.test(t)) return "essence";
+  if (/^channel\b/.test(t)) return "channel";
+  return t;
+}
+
 function buildGlossary(card: Card, matchedTerms: string[]) {
   const seen = new Set<string>();
   const out: { term: string; desc: string }[] = [];
   const candidates = matchedTerms.concat(card.card_keywords || []);
   candidates.forEach((term) => {
-    const lookup = term.replace(/\s+\d+$/, "").trim().toLowerCase();
+    const lookup = canonicalKeyword(term);
     if (seen.has(lookup)) return;
     const found = KEYWORDS.find((k) => k.name.toLowerCase() === lookup);
     if (found) {
