@@ -1,0 +1,42 @@
+name: Detect new precons
+
+on:
+  schedule:
+    # Mondays at 07:00 UTC (after the Sunday card database sync)
+    - cron: "0 7 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  detect-precons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Scan fabtcg.com for new precon decklists
+        run: node scripts/detect-new-precons.mjs
+
+      - name: Open a PR if new precons were found
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: add newly detected precon decklist(s)"
+          title: "Add newly detected precon decklist(s)"
+          body: |
+            Opened automatically by `.github/workflows/detect-precons.yml` after
+            finding decklist page(s) on fabtcg.com not yet in
+            `scripts/precon-sources.json`.
+
+            Category/label were guessed from each page's title — please check
+            they read well in the "Load Precon" picker before merging, and
+            spot-check a card or two in the diff against the source page.
+          branch: auto/detect-precons
+          add-paths: |
+            scripts/precon-sources.json
+            src/data/precons.json

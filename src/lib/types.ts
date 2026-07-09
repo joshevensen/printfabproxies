@@ -38,6 +38,13 @@ export interface ResolvedCard {
   printing: Printing | null;
 }
 
+export interface Precon {
+  id: string;
+  category: string;
+  label: string;
+  decklistText: string;
+}
+
 export interface GlossaryEntry {
   term: string;
   desc: string;

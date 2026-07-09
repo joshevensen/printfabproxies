@@ -7,7 +7,9 @@ import type { CardGroup } from "../lib/classify";
 import { collectAutoTokens } from "../lib/tokens";
 import { buildIdIndex, encodeCards, decodeCards, type IdIndex } from "../lib/shareLink";
 import { usePrintSheet } from "./usePrintSheet";
-import { PRECONS } from "../data/precons";
+import type { Precon } from "../lib/types";
+import preconsData from "../data/precons.json";
+const PRECONS = preconsData as Precon[];
 
 const { buildPrintCards, pageCount } = usePrintSheet();
 
@@ -27,6 +29,7 @@ const state = reactive({
   searchQuery: "",
   searchFocused: false,
   preconMenuOpen: false,
+  preconQuery: "",
 });
 
 // Keep the (hidden) print sheet and the shareable URL in sync with the live
@@ -103,9 +106,13 @@ function parseDeck() {
 
 function togglePreconMenu() {
   state.preconMenuOpen = !state.preconMenuOpen;
+  state.preconQuery = "";
 }
 function closePreconMenu() {
   state.preconMenuOpen = false;
+}
+function handlePreconQueryChange(e: Event) {
+  state.preconQuery = (e.target as HTMLInputElement).value;
 }
 
 function loadPrecon(id: string) {
@@ -226,6 +233,11 @@ export interface CardGroupView {
   rows: CardRowView[];
 }
 
+export interface PreconGroupView {
+  category: string;
+  precons: Precon[];
+}
+
 export interface NotFoundOptionView {
   label: string;
   borderColor: string;
@@ -344,6 +356,23 @@ const cardGroups = computed<CardGroupView[]>(() =>
   }).filter((g) => g.rows.length > 0)
 );
 
+const preconGroups = computed<PreconGroupView[]>(() => {
+  const query = state.preconQuery.trim().toLowerCase();
+  const matches = query
+    ? PRECONS.filter((p) => p.label.toLowerCase().includes(query) || p.category.toLowerCase().includes(query))
+    : PRECONS;
+  const groups: PreconGroupView[] = [];
+  for (const precon of matches) {
+    let group = groups.find((g) => g.category === precon.category);
+    if (!group) {
+      group = { category: precon.category, precons: [] };
+      groups.push(group);
+    }
+    group.precons.push(precon);
+  }
+  return groups;
+});
+
 const searchResults = computed<SearchResultView[]>(() => {
   const query = state.searchQuery.trim().toLowerCase();
   if (query.length < 1 || !state.dbCards) return [];
@@ -373,10 +402,11 @@ export function useBuilder() {
     closeModal,
     confirmAndClose,
     parseDeck,
-    precons: PRECONS,
     togglePreconMenu,
     closePreconMenu,
+    handlePreconQueryChange,
     loadPrecon,
+    preconGroups,
     chooseMatch,
     adjustQty,
     removeResolved,

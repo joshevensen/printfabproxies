@@ -4,6 +4,7 @@ import Wordmark from "./components/Wordmark.vue";
 import SearchBox from "./components/SearchBox.vue";
 import CardPreview from "./components/CardPreview.vue";
 import DecklistModal from "./components/DecklistModal.vue";
+import PreconPicker from "./components/PreconPicker.vue";
 import PrintSheet from "./components/PrintSheet.vue";
 import { useBuilder } from "./composables/useBuilder";
 import { usePrintSheet } from "./composables/usePrintSheet";
@@ -16,10 +17,8 @@ const {
   previewTotalQty,
   pageCount,
   hasResolvedCards,
-  precons,
   togglePreconMenu,
   closePreconMenu,
-  loadPrecon,
 } = useBuilder();
 const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides } = usePrintSheet();
 
@@ -101,17 +100,7 @@ function closeSettings() {
           >
             Load Precon
           </button>
-          <div v-if="state.preconMenuOpen" class="app__precon-menu" @click.stop>
-            <button
-              v-for="precon in precons"
-              :key="precon.id"
-              type="button"
-              class="app__precon-item"
-              @click="loadPrecon(precon.id)"
-            >
-              {{ precon.label }}
-            </button>
-          </div>
+          <PreconPicker v-if="state.preconMenuOpen" />
         </div>
 
         <button
@@ -369,34 +358,6 @@ function closeSettings() {
 .app__precon {
   position: relative;
   display: flex;
-}
-
-.app__precon-menu {
-  position: absolute;
-  top: 44px;
-  left: 0;
-  min-width: 260px;
-  background: white;
-  border: 1px solid oklch(0.86 0.01 80);
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  z-index: 50;
-}
-
-.app__precon-item {
-  text-align: left;
-  padding: 9px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.app__precon-item:hover {
-  background: var(--fab-tab-bg);
 }
 
 .app__print {
