@@ -7,6 +7,7 @@ import type { CardGroup } from "../lib/classify";
 import { collectAutoTokens } from "../lib/tokens";
 import { buildIdIndex, encodeCards, decodeCards, type IdIndex } from "../lib/shareLink";
 import { usePrintSheet } from "./usePrintSheet";
+import { PRECONS } from "../data/precons";
 
 const { buildPrintCards, pageCount } = usePrintSheet();
 
@@ -25,6 +26,7 @@ const state = reactive({
   settingsOpen: false,
   searchQuery: "",
   searchFocused: false,
+  preconMenuOpen: false,
 });
 
 // Keep the (hidden) print sheet and the shareable URL in sync with the live
@@ -95,6 +97,23 @@ function parseDeck() {
     return;
   }
   state.hasChecked = true;
+}
+
+// ---- Precons ------------------------------------------------------------
+
+function togglePreconMenu() {
+  state.preconMenuOpen = !state.preconMenuOpen;
+}
+function closePreconMenu() {
+  state.preconMenuOpen = false;
+}
+
+function loadPrecon(id: string) {
+  const precon = PRECONS.find((p) => p.id === id);
+  if (!precon) return;
+  state.decklistText = precon.decklistText;
+  state.preconMenuOpen = false;
+  parseDeck();
 }
 
 function chooseMatch(rowIndex: number, matchIndex: number) {
@@ -354,6 +373,10 @@ export function useBuilder() {
     closeModal,
     confirmAndClose,
     parseDeck,
+    precons: PRECONS,
+    togglePreconMenu,
+    closePreconMenu,
+    loadPrecon,
     chooseMatch,
     adjustQty,
     removeResolved,
