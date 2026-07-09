@@ -4,12 +4,22 @@ import Wordmark from "./components/Wordmark.vue";
 import SearchBox from "./components/SearchBox.vue";
 import CardPreview from "./components/CardPreview.vue";
 import DecklistModal from "./components/DecklistModal.vue";
+import PreconPicker from "./components/PreconPicker.vue";
 import PrintSheet from "./components/PrintSheet.vue";
 import { useBuilder } from "./composables/useBuilder";
 import { usePrintSheet } from "./composables/usePrintSheet";
 
-const { state, ensureDbLoaded, openModal, clearAll, previewTotalQty, pageCount, hasResolvedCards } =
-  useBuilder();
+const {
+  state,
+  ensureDbLoaded,
+  openModal,
+  clearAll,
+  previewTotalQty,
+  pageCount,
+  hasResolvedCards,
+  togglePreconMenu,
+  closePreconMenu,
+} = useBuilder();
 const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides } = usePrintSheet();
 
 function onKeydown(e: KeyboardEvent) {
@@ -80,6 +90,18 @@ function closeSettings() {
         <SearchBox />
 
         <button type="button" class="btn btn--outline" @click="openModal">Add Decklist</button>
+
+        <div class="app__precon">
+          <button
+            type="button"
+            class="btn btn--outline"
+            :aria-expanded="state.preconMenuOpen"
+            @click="togglePreconMenu"
+          >
+            Load Precon
+          </button>
+          <PreconPicker v-if="state.preconMenuOpen" />
+        </div>
 
         <button
           type="button"
@@ -200,6 +222,7 @@ function closeSettings() {
 
     <!-- SETTINGS BACKDROP -->
     <div v-if="state.settingsOpen" class="app__settings-backdrop" @click="closeSettings"></div>
+    <div v-if="state.preconMenuOpen" class="app__settings-backdrop" @click="closePreconMenu"></div>
   </div>
 
   <DecklistModal v-if="state.modalOpen" />
@@ -330,6 +353,11 @@ function closeSettings() {
 
 .btn--outline:disabled {
   opacity: 0.5;
+}
+
+.app__precon {
+  position: relative;
+  display: flex;
 }
 
 .app__print {

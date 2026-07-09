@@ -7,6 +7,9 @@ import type { CardGroup } from "../lib/classify";
 import { collectAutoTokens } from "../lib/tokens";
 import { buildIdIndex, encodeCards, decodeCards, type IdIndex } from "../lib/shareLink";
 import { usePrintSheet } from "./usePrintSheet";
+import type { Precon } from "../lib/types";
+import preconsData from "../data/precons.json";
+const PRECONS = preconsData as Precon[];
 
 const { buildPrintCards, pageCount } = usePrintSheet();
 
@@ -25,6 +28,8 @@ const state = reactive({
   settingsOpen: false,
   searchQuery: "",
   searchFocused: false,
+  preconMenuOpen: false,
+  preconQuery: "",
 });
 
 // Keep the (hidden) print sheet and the shareable URL in sync with the live
@@ -95,6 +100,27 @@ function parseDeck() {
     return;
   }
   state.hasChecked = true;
+}
+
+// ---- Precons ------------------------------------------------------------
+
+function togglePreconMenu() {
+  state.preconMenuOpen = !state.preconMenuOpen;
+  state.preconQuery = "";
+}
+function closePreconMenu() {
+  state.preconMenuOpen = false;
+}
+function handlePreconQueryChange(e: Event) {
+  state.preconQuery = (e.target as HTMLInputElement).value;
+}
+
+function loadPrecon(id: string) {
+  const precon = PRECONS.find((p) => p.id === id);
+  if (!precon) return;
+  state.decklistText = precon.decklistText;
+  state.preconMenuOpen = false;
+  parseDeck();
 }
 
 function chooseMatch(rowIndex: number, matchIndex: number) {
@@ -205,6 +231,11 @@ export interface CardGroupView {
   label: string;
   count: number;
   rows: CardRowView[];
+}
+
+export interface PreconGroupView {
+  category: string;
+  precons: Precon[];
 }
 
 export interface NotFoundOptionView {
@@ -325,6 +356,23 @@ const cardGroups = computed<CardGroupView[]>(() =>
   }).filter((g) => g.rows.length > 0)
 );
 
+const preconGroups = computed<PreconGroupView[]>(() => {
+  const query = state.preconQuery.trim().toLowerCase();
+  const matches = query
+    ? PRECONS.filter((p) => p.label.toLowerCase().includes(query) || p.category.toLowerCase().includes(query))
+    : PRECONS;
+  const groups: PreconGroupView[] = [];
+  for (const precon of matches) {
+    let group = groups.find((g) => g.category === precon.category);
+    if (!group) {
+      group = { category: precon.category, precons: [] };
+      groups.push(group);
+    }
+    group.precons.push(precon);
+  }
+  return groups;
+});
+
 const searchResults = computed<SearchResultView[]>(() => {
   const query = state.searchQuery.trim().toLowerCase();
   if (query.length < 1 || !state.dbCards) return [];
@@ -354,6 +402,11 @@ export function useBuilder() {
     closeModal,
     confirmAndClose,
     parseDeck,
+    togglePreconMenu,
+    closePreconMenu,
+    handlePreconQueryChange,
+    loadPrecon,
+    preconGroups,
     chooseMatch,
     adjustQty,
     removeResolved,

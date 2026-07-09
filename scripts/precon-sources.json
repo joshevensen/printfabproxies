@@ -1,0 +1,57 @@
+[
+  { "id": "sac1-bravo", "category": "Silver Age Chapter 1", "label": "Bravo, Flattering Showman", "slug": "silver-age-chapter-1-bravo-flattering-showman" },
+  { "id": "sac1-dash", "category": "Silver Age Chapter 1", "label": "Dash, Inventor Extraordinaire", "slug": "silver-age-chapter-1-dash" },
+  { "id": "sac1-iyslander", "category": "Silver Age Chapter 1", "label": "Iyslander, Stormbind", "slug": "silver-age-chapter-1-iyslander" },
+  { "id": "sac1-kayo", "category": "Silver Age Chapter 1", "label": "Kayo, Armed and Dangerous", "slug": "silver-age-chapter-1-kayo" },
+  { "id": "sac1-viserai", "category": "Silver Age Chapter 1", "label": "Viserai, Duskbringer", "slug": "silver-age-chapter-1-viserai" },
+
+  { "id": "sar-arakni-web-of-deceit", "category": "Silver Age Chapter 2", "label": "Arakni, Web of Deceit", "slug": "silver-age-chapter-2-arakni-web-of-deceit" },
+  { "id": "sac2-azalea", "category": "Silver Age Chapter 2", "label": "Azalea, Ace in the Hole", "slug": "silver-age-chapter-2-azalea" },
+  { "id": "sac2-dorinthea", "category": "Silver Age Chapter 2", "label": "Dorinthea, Poised Blade", "slug": "silver-age-chapter-2-dorinthea" },
+  { "id": "sac2-enigma", "category": "Silver Age Chapter 2", "label": "Enigma, the Mind's Eye", "slug": "silver-age-chapter-2-enigma" },
+  { "id": "sac2-fai", "category": "Silver Age Chapter 2", "label": "Fai, Rising Rebellion", "slug": "silver-age-chapter-2-fai" },
+
+  { "id": "sac3-blaze", "category": "Silver Age Chapter 3", "label": "Blaze, Firemind", "slug": "silver-age-chapter-3-blaze-firemind" },
+  { "id": "sac3-boltyn", "category": "Silver Age Chapter 3", "label": "Ser Boltyn, Breaker of Dawn", "slug": "silver-age-chapter-3-boltyn" },
+  { "id": "sac3-briar", "category": "Silver Age Chapter 3", "label": "Briar, Warden of Thorns", "slug": "silver-age-chapter-3-briar" },
+  { "id": "sac3-gravy-bones", "category": "Silver Age Chapter 3", "label": "Gravy Bones, Shipwrecked Looter", "slug": "silver-age-chapter-3-gravy-bones" },
+  { "id": "sac3-lyath", "category": "Silver Age Chapter 3", "label": "Lyath Goldmane", "slug": "silver-age-chapter-3-lyath-goldmane" },
+
+  { "id": "hh-betsy", "category": "Heavy Hitters (Blitz Preconstructed)", "label": "Betsy", "slug": "betsy-heavy-hitters-blitz-preconstructed-deck" },
+  { "id": "hh-kassai", "category": "Heavy Hitters (Blitz Preconstructed)", "label": "Kassai", "slug": "kassai-heavy-hitters-blitz-preconstructed-deck" },
+  { "id": "hh-kayo", "category": "Heavy Hitters (Blitz Preconstructed)", "label": "Kayo", "slug": "kayo-heavy-hitters-blitz-preconstructed-deck" },
+  { "id": "hh-olympia", "category": "Heavy Hitters (Blitz Preconstructed)", "label": "Olympia", "slug": "olympia-heavy-hitters-blitz-preconstructed-deck" },
+  { "id": "hh-rhinar", "category": "Heavy Hitters (Blitz Preconstructed)", "label": "Rhinar", "slug": "rhinar-heavy-hitters-blitz-preconstructed-deck" },
+  { "id": "hh-victor", "category": "Heavy Hitters (Blitz Preconstructed)", "label": "Victor", "slug": "victor-heavy-hitters-blitz-preconstructed-deck" },
+
+  { "id": "ptm-enigma", "category": "Part the Mistveil (Blitz Preconstructed)", "label": "Enigma", "slug": "enigma-part-the-mistveil-blitz-preconstructed-deck" },
+  { "id": "ptm-nuu", "category": "Part the Mistveil (Blitz Preconstructed)", "label": "Nuu", "slug": "nuu-part-the-mistveil-blitz-preconstructed-deck" },
+  { "id": "ptm-zen", "category": "Part the Mistveil (Blitz Preconstructed)", "label": "Zen", "slug": "zen-part-the-mistveil-blitz-preconstructed-deck" },
+
+  { "id": "rosetta-aurora", "category": "Rosetta Blitz Deck", "label": "Aurora", "slug": "rosetta-blitz-deck-aurora" },
+  { "id": "rosetta-florian", "category": "Rosetta Blitz Deck", "label": "Florian", "slug": "rosetta-blitz-deck-florian" },
+  { "id": "rosetta-oscilio", "category": "Rosetta Blitz Deck", "label": "Oscilio", "slug": "rosetta-blitz-deck-oscilio" },
+  { "id": "rosetta-verdance", "category": "Rosetta Blitz Deck", "label": "Verdance", "slug": "rosetta-blitz-deck-verdance" },
+
+  { "id": "hunted-arakni", "category": "The Hunted Blitz Deck", "label": "Arakni", "slug": "the-hunted-blitz-deck-arakni" },
+  { "id": "hunted-arakni-wod", "category": "The Hunted Blitz Deck", "label": "Arakni, Web of Deceit", "slug": "the-hunted-blitz-deck-arakni-web-of-deceit" },
+  { "id": "hunted-cindra", "category": "The Hunted Blitz Deck", "label": "Cindra", "slug": "the-hunted-blitz-deck-cindra" },
+  { "id": "hunted-fang", "category": "The Hunted Blitz Deck", "label": "Fang", "slug": "the-hunted-blitz-deck-fang" },
+
+  { "id": "1st-strike-terra", "category": "1st Strike (Blitz Preconstructed)", "label": "Terra", "slug": "1st-strike-terra" },
+  { "id": "1st-strike-aurora", "category": "1st Strike (Blitz Preconstructed)", "label": "Aurora", "slug": "38319239-c41a-4359-a047-60722ba156f7" },
+
+  { "id": "armory-arakni", "category": "Armory Deck", "label": "Arakni, 5L!p3d 7hRu 7h3 cR4X", "slug": "armory-deck-arakni-5lp3d-7hru-7h3-cr4x" },
+  { "id": "armory-aurora", "category": "Armory Deck", "label": "Aurora, Shooting Star", "slug": "armory-deck-aurora-shooting-star" },
+  { "id": "armory-azalea", "category": "Armory Deck", "label": "Azalea, Ace in the Hole", "slug": "armory-deck-azalea-ace-in-the-hole" },
+  { "id": "armory-dash", "category": "Armory Deck", "label": "Dash, I/O", "slug": "armory-deck-dash-io" },
+  { "id": "armory-gravy-bones", "category": "Armory Deck", "label": "Gravy Bones, Shipwrecked Looter", "slug": "armory-deck-gravy-bones-shipwrecked-looter-blitz" },
+  { "id": "armory-hala", "category": "Armory Deck", "label": "Hala, Bladesaint of the Vow", "slug": "armory-deck-hala-bladesaint-of-the-vow" },
+  { "id": "armory-ira", "category": "Armory Deck", "label": "Ira, Scarlet Revenger", "slug": "armory-deck-ira-scarlet-revenger" },
+  { "id": "armory-maxx", "category": "Armory Deck", "label": "Maxx \"The Hype\" Nitro", "slug": "armory-deck-maxx-the-hype-nitro" },
+  { "id": "armory-pleiades", "category": "Armory Deck", "label": "Pleiades, Superstar", "slug": "armory-deck-pleiades-superstar" },
+  { "id": "armory-rhinar", "category": "Armory Deck", "label": "Rhinar, Reckless Rampage", "slug": "armory-deck-rhinar-reckless-rampage" },
+  { "id": "armory-boltyn", "category": "Armory Deck", "label": "Ser Boltyn, Breaker of Dawn", "slug": "armory-deck-ser-boltyn-breaker-of-dawn" },
+  { "id": "armory-zyggy", "category": "Armory Deck", "label": "Zyggy, Starlight", "slug": "armory-deck-zyggy-starlight" },
+  { "id": "armory-kayo", "category": "Armory Deck", "label": "Kayo", "slug": "kayo-armory-deck" }
+]
