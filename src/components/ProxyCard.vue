@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { ProxyCardProps } from "../lib/types";
 
-defineProps<{ card: ProxyCardProps }>();
+withDefaults(defineProps<{ card: ProxyCardProps; showGlossary?: boolean }>(), {
+  showGlossary: true,
+});
 </script>
 
 <template>
@@ -18,7 +20,7 @@ defineProps<{ card: ProxyCardProps }>();
       </div>
       <div class="proxy-card__text" v-html="card.functionalHtml"></div>
       <div class="proxy-card__spacer"></div>
-      <div v-if="card.hasGlossary" class="proxy-card__glossary">
+      <div v-if="card.hasGlossary && showGlossary" class="proxy-card__glossary">
         <div v-for="g in card.glossary" :key="g.term" class="proxy-card__glossary-entry">
           <b>{{ g.term }}</b>: {{ g.desc }}
         </div>

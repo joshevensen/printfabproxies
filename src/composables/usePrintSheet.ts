@@ -26,6 +26,7 @@ const printState = reactive({
   paperSize: "letter" as PaperSize,
   borderless: false,
   cutGuides: true,
+  showKeywordDefinitions: true,
 });
 
 function buildPrintCards(resolvedCards: ResolvedCard[]) {
@@ -53,6 +54,10 @@ function toggleBorderless() {
 
 function toggleCutGuides() {
   printState.cutGuides = !printState.cutGuides;
+}
+
+function toggleKeywordDefinitions() {
+  printState.showKeywordDefinitions = !printState.showKeywordDefinitions;
 }
 
 const pageCount = computed(() => Math.ceil(printState.printCards.length / CARDS_PER_PAGE) || 0);
@@ -107,7 +112,7 @@ const printSheetHeight = computed(() =>
   inches(PAGE_DIMENSIONS_IN[printState.paperSize].height - printMarginIn.value * 2)
 );
 
-const cutGuideOutline = computed(() => (printState.cutGuides ? "1px dashed rgba(28,27,25,0.35)" : "none"));
+const cutGuideOutline = computed(() => (printState.cutGuides ? "1px dashed rgba(43,108,196,0.55)" : "none"));
 
 export function usePrintSheet() {
   return {
@@ -117,6 +122,7 @@ export function usePrintSheet() {
     setPaperSize,
     toggleBorderless,
     toggleCutGuides,
+    toggleKeywordDefinitions,
     pageCount,
     printPages,
     printPageStyle,

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useBuilder } from "../composables/useBuilder";
+import { usePrintSheet } from "../composables/usePrintSheet";
 import ProxyCard from "./ProxyCard.vue";
 
 const { cardGroups, hasResolvedCards, openModal } = useBuilder();
+const { printState } = usePrintSheet();
 </script>
 
 <template>
@@ -33,7 +35,7 @@ const { cardGroups, hasResolvedCards, openModal } = useBuilder();
               :style="{ transform: `translate(0,${ghost.offset}px)`, zIndex: ghost.z }"
             ></div>
             <div class="preview__card-slot">
-              <ProxyCard :card="row.cardProps" />
+              <ProxyCard :card="row.cardProps" :show-glossary="printState.showKeywordDefinitions" />
             </div>
             <div class="preview__controls-wrap">
               <div class="preview__controls">

@@ -2,7 +2,7 @@
 import { usePrintSheet } from "../composables/usePrintSheet";
 import ProxyCard from "./ProxyCard.vue";
 
-const { printPages, printPageStyle, printGridStyle, printSheetHeight, cutGuideOutline } =
+const { printState, printPages, printPageStyle, printGridStyle, printSheetHeight, cutGuideOutline } =
   usePrintSheet();
 </script>
 
@@ -25,7 +25,7 @@ const { printPages, printPageStyle, printGridStyle, printSheetHeight, cutGuideOu
           class="print-sheet__cell"
           :style="{ outline: cutGuideOutline, outlineOffset: '-0.5px' }"
         >
-          <ProxyCard :card="item.props" />
+          <ProxyCard :card="item.props" :show-glossary="printState.showKeywordDefinitions" />
         </div>
       </div>
     </div>

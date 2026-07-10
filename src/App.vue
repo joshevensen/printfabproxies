@@ -20,7 +20,8 @@ const {
   togglePreconMenu,
   closePreconMenu,
 } = useBuilder();
-const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides } = usePrintSheet();
+const { printState, doPrint, setPaperSize, toggleBorderless, toggleCutGuides, toggleKeywordDefinitions } =
+  usePrintSheet();
 
 function onKeydown(e: KeyboardEvent) {
   if (e.key === "Escape") state.settingsOpen = false;
@@ -65,6 +66,7 @@ function closeSettings() {
           <li>Pick a paper size in the print settings that matches what's loaded in your printer.</li>
           <li>Cut guides add a dashed outline around each card so you can trim it accurately.</li>
           <li>Borderless removes the page margin — cards stay true size and centered.</li>
+          <li>Keyword definitions are shown by default — turn them off to hide the glossary text on cards.</li>
           <li>For best results, print at 100% scale (not "fit to page") so cards come out at true size.</li>
         </ul>
       </div>
@@ -195,6 +197,28 @@ function closeSettings() {
                 :style="{ background: printState.cutGuides ? '#B5451E' : 'oklch(0.85 0.01 80)' }"
               >
                 <div class="app__switch-knob" :style="{ left: printState.cutGuides ? '18px' : '3px' }"></div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              class="app__toggle"
+              role="switch"
+              :aria-checked="printState.showKeywordDefinitions"
+              @click="toggleKeywordDefinitions"
+            >
+              <div>
+                <div class="app__toggle-label">Keyword definitions</div>
+                <div class="app__toggle-desc">Show glossary text on cards</div>
+              </div>
+              <div
+                class="app__switch"
+                :style="{ background: printState.showKeywordDefinitions ? '#B5451E' : 'oklch(0.85 0.01 80)' }"
+              >
+                <div
+                  class="app__switch-knob"
+                  :style="{ left: printState.showKeywordDefinitions ? '18px' : '3px' }"
+                ></div>
               </div>
             </button>
           </div>
